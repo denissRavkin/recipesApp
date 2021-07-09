@@ -8,16 +8,11 @@
 import Foundation
 
 class RecipeEnvelopeCollectionViewCellViewModel: RecipeEnvelopeCollectionViewCellViewModelProtocol {
-    
     var title: String
     var imageStringUrl: String
-//    var recipeImageStringUrl: String!
-//    var imageData: Data?
-//    //private var imageString: Data
     
-    init(title: String, imageString: String?) {
-        self.title = title
-        self.imageStringUrl = imageString ?? ""
+    init(recipe: RecipeEnvelopeForCellViewModel) {
+        self.title = recipe.title
+        self.imageStringUrl = recipe.image ?? ""
     }
-    
 }

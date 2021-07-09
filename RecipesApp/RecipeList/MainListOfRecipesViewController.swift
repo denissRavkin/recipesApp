@@ -8,12 +8,10 @@
 import UIKit
 
 class MainListOfRecipesViewController: UIViewController, UIGestureRecognizerDelegate {
-    
     let filterCellId = "filterCellId"
     
     var searchTextField: UITextField!
     var searchButton: UIButton = UIButton()
-//    var activityIndicator: UIActivityIndicatorView!
     var cuisineFilterButton: UIButton!
     var mealTypeFilterButton: UIButton!
     var filterButtonsStackView: UIStackView!
@@ -22,8 +20,6 @@ class MainListOfRecipesViewController: UIViewController, UIGestureRecognizerDele
     
     var collectionViewFilters: UICollectionView!
     var visualEffectFiltersView: UIVisualEffectView!
-    
-//    var gradientLayer: CAGradientLayer!
     
     var viewModel: MainListOfRecipesViewModelProtocol!
     
@@ -62,7 +58,6 @@ class MainListOfRecipesViewController: UIViewController, UIGestureRecognizerDele
         setupSearchTextField()
         setupSearchButton()
         setupFilterButtons()
-//        setupGradientLayer()
         setupCollectionView()
         setupNoResultLabel()
     }
@@ -199,49 +194,18 @@ class MainListOfRecipesViewController: UIViewController, UIGestureRecognizerDele
         collectionViewFilters.tag = 1
     }
     
-//    func setupGradientLayer() {
-//        gradientLayer = CAGradientLayer()
-//        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
-//        gradientLayer.endPoint = CGPoint(x: 0, y: 1)
-//        gradientLayer.colors = [#colorLiteral(red: 0, green: 0.6163546954, blue: 0.01877258797, alpha: 1).cgColor, #colorLiteral(red: 1, green: 0.9426946848, blue: 0.1007128151, alpha: 1).cgColor]
-//    }
-//
     func setupCollectionView() {
-      //  let collectionViewFlowLayout = UICollectionViewFlowLayout()
-      //  collectionViewFlowLayout.itemSize = CGSize(width: (view.bounds.width - 30)/2, height: (view.bounds.width - 30)/2)
         recipesCollectionView = RecipesCollectionView()
         recipesCollectionView.dataSource = self
         recipesCollectionView.delegate = self
-       // recipesCollectionView.tag = 0
-//        let cellId = "RecipeCell"
-//        recipesCollectionView.register(RecipeEnvelopeCollectionViewCell.self, forCellWithReuseIdentifier: cellId)
-//        let backgroundView = UIView(frame: recipesCollectionView.frame)
-//        backgroundView.layer.insertSublayer(gradientLayer, at: 0)
-//        recipesCollectionView.backgroundView = backgroundView
+        recipesCollectionView.swipeDelegate = self
         view.addSubview(recipesCollectionView)
         viewModel.recipes.bindListener { _ in
             DispatchQueue.main.async {
                 self.recipesCollectionView.reloadData()
             }
         }
-//        let swipeUpGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(swipeGestureOnCollectionView(_:)))
-//        swipeUpGestureRecognizer.direction = .up
-//        swipeUpGestureRecognizer.delegate = recipesCollectionView
-//        recipesCollectionView.addGestureRecognizer(swipeUpGestureRecognizer)
-//        recipesCollectionView.addSubview(activityIndicator)
     }
-    
-    @objc func swipeGestureOnCollectionView(_ gestureRecognizer: UISwipeGestureRecognizer) {
-            searchTextField.resignFirstResponder()
-            hideFilterButtonWithAnimation()
-            print("gesture up")
-    }
-    
-//    func setupActivityIndicator() {
-//        activityIndicator = UIActivityIndicatorView()
-//        activityIndicator.hidesWhenStopped = true
-//        activityIndicator.color = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-//    }
     
     func setupUIConstraints() {
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -276,10 +240,10 @@ class MainListOfRecipesViewController: UIViewController, UIGestureRecognizerDele
         ])
     }
     
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        gradientLayer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
-//    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+            recipesCollectionView.gradientLayer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
@@ -407,7 +371,6 @@ extension MainListOfRecipesViewController: UICollectionViewDelegate {
 }
 
 extension MainListOfRecipesViewController: UICollectionViewDelegateFlowLayout {
-
     func collectionView(_: UICollectionView, layout: UICollectionViewLayout, insetForSectionAt: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: 10, bottom: 10, right: 10)
     }
@@ -438,3 +401,10 @@ extension MainListOfRecipesViewController: UITextFieldDelegate {
     }
 }
 
+extension MainListOfRecipesViewController: SwipeUpOnRecipesCollectionViewDelegate {
+    func swipeUpOnRecipesCollectionView() {
+        searchTextField.resignFirstResponder()
+        hideFilterButtonWithAnimation()
+        print("gesture up")
+    }
+}

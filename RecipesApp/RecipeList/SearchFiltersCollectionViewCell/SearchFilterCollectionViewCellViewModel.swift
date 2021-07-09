@@ -8,7 +8,6 @@
 import Foundation
 
 class SearchFilterCollectionViewCellViewModel: SearchFilterCollectionViewCellViewModelProtocol {
-    
     var filterName: String
     var filterIsSelected: Box<Bool>
     

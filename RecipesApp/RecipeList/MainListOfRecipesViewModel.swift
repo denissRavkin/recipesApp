@@ -11,13 +11,14 @@ class MainListOfRecipesViewModel: MainListOfRecipesViewModelProtocol {
     func viewModelDetailViewController(byIndexPath indexPath: IndexPath) -> DetailRecipeViewModelProtocol {
         return DetailRecipeViewModel(id: recipes.value[indexPath.row].id)
     }
-    
+    let dataManager = DataManager()
     var titleForNavigationBar: Box<String> = Box(value:"Random recipes")
     
     var soughtRecipeName: String = "Random recipes"
     
+    var group = DispatchGroup()
+    
     func viewModelFilterCollectionViewCell(index: Int) -> SearchFilterCollectionViewCellViewModel {
-        
         var selectedFilters: [Filter] = []
         var filterName: String
         switch selectedFilterType {
@@ -79,7 +80,7 @@ class MainListOfRecipesViewModel: MainListOfRecipesViewModelProtocol {
             
    
     func viewModelCollectionViewCell(index: Int) -> RecipeEnvelopeCollectionViewCellViewModel {
-        return RecipeEnvelopeCollectionViewCellViewModel(title: recipes.value[index].title, imageString: recipes.value[index].image)
+        return RecipeEnvelopeCollectionViewCellViewModel(recipe: recipes.value[index])
     }
     
     func numberOfItems() -> Int {
@@ -90,12 +91,10 @@ class MainListOfRecipesViewModel: MainListOfRecipesViewModelProtocol {
     
     var recipes: Box<[RecipeEnvelope]> = Box(value: [])
     
-    //var searchType: SearchType = SearchType.randomSearch
-    
     func fetchRecipeTittleImage(soughtRecipeName: String, completion: @escaping () -> Void){
         if soughtRecipeName.isEmpty {
             titleForNavigationBar.value = "Random Recipes"
-            DataManager.fetchRandomRecipes(count: countOfRandomRecipes) {  (recipesList) in
+            dataManager.fetchRandomRecipes(count: countOfRandomRecipes) {  (recipesList) in
                 self.recipes.value = recipesList?.recipes ?? []
                 completion()
             }
@@ -103,7 +102,7 @@ class MainListOfRecipesViewModel: MainListOfRecipesViewModelProtocol {
             self.soughtRecipeName = soughtRecipeName
             titleForNavigationBar.value = "Recipes By Name"
             print(soughtRecipeName)
-            DataManager.fetchRecipesByName(soughtForRecipeName: soughtRecipeName, mealTypes: selectedMealTypeFilters, cuisineTypes: selectedCuisineFilters) {(recipesList) in
+            dataManager.fetchRecipesByName(soughtForRecipeName: soughtRecipeName, mealTypes: selectedMealTypeFilters, cuisineTypes: selectedCuisineFilters) {(recipesList) in
                 self.recipes.value = recipesList?.results ?? []
                 completion()
             }
@@ -115,13 +114,6 @@ class MainListOfRecipesViewModel: MainListOfRecipesViewModelProtocol {
     let cuisinefilters = Cuisine.allCases
     let mealTypeFilters = MealType.allCases
 }
-
-enum SearchType {
-    case randomSearch
-    case searchByName(cuisineFilters: [Cuisine], mealTypeFilters: [MealType])
-}
-
-let searchType = SearchType.searchByName(cuisineFilters: [.African, .Cajun], mealTypeFilters: [])
 
 protocol Filter {}
 

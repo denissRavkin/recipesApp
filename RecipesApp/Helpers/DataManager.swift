@@ -7,10 +7,15 @@
 
 import Foundation
 
+// MARK: - Network
+
 class DataManager {
+    private let networkRequest: Networking
+    private let coreDataManager = CoreDataManager.shared
     
-    let coreDataManager = CoreDataManager.shared
-    let networkRequest = NetworkRequest()
+    init(networkRequest: Networking = NetworkRequest()) {
+        self.networkRequest = networkRequest
+    }
     
     private enum Api: String {
         case hostName = "api.spoonacular.com"
@@ -24,7 +29,7 @@ class DataManager {
         }
     }
 
-    private static func makeUrl(path: String, queryItems: [URLQueryItem] = []) -> URL? {
+    private func makeUrl(path: String, queryItems: [URLQueryItem] = []) -> URL? {
         var components = URLComponents()
         components.scheme = "https"
         components.host = Api.hostName.rawValue
@@ -33,49 +38,58 @@ class DataManager {
         return components.url
     }
     
-    static func fetchRandomRecipes(count: Int, completion: @escaping (RandomRecipe?) -> Void)  {
-       // let urlStringRandomRecipes = "https://api.spoonacular.com/recipes/random?apiKey=cd6a3ed86c004fea8fc64a8bc708cb79&number=\(count)"
-       
+    func fetchRandomRecipes(count: Int, completion: @escaping (RandomRecipe?) -> Void)  {
         guard let url = makeUrl(path: "/recipes/random", queryItems: [URLQueryItem(name: Api.KeysName.numberRecipes.rawValue, value: "\(count)")]) else { return }
-        
-       // guard let url = URL(string: urlStringRandomRecipes) else { return }
-        NetworkRequest.getDataTask(url: url, completion: completion)
+        networkRequest.requestAndDecode(url: url, completion: completion)
     }
     
-    static func fetchRecipeDetails(by id:Int, completion: @escaping (RecipeDetail?) -> Void) {
-       // let urlStringRecipeDetail = "https://api.spoonacular.com/recipes/\(id)/information?apiKey=cd6a3ed86c004fea8fc64a8bc708cb79"
+    func fetchRecipeDetails(by id:Int, completion: @escaping (RecipeDetail?) -> Void) {
         guard let url = makeUrl(path: "/recipes/\(id)/information") else { return }
-        NetworkRequest.getDataTask(url: url, completion: completion)
+        networkRequest.requestAndDecode(url: url, completion: completion)
     }
     
-    static func fetchRecipesByName(soughtForRecipeName: String, mealTypes: [MealType]?, cuisineTypes: [Cuisine]?, completion: @escaping (RecipeByName?) -> Void) {
+    func fetchRecipesByName(soughtForRecipeName: String, mealTypes: [MealType]?, cuisineTypes: [Cuisine]?, completion: @escaping (RecipeByName?) -> Void) {
       
         var queryItems = [URLQueryItem(name: Api.KeysName.recipeName.rawValue, value: soughtForRecipeName)]
-        
-//        let urlStringFirstPart = "https://api.spoonacular.com/recipes/complexSearch?apiKey=cd6a3ed86c004fea8fc64a8bc708cb79&query=\(soughtForRecipeName)"
-//        var urlStringSecondPart = ""
-//        var urlStringThirdPart = ""
+
         if let mealTypes = mealTypes {
-//            urlStringSecondPart = "&type="
             for mealType in mealTypes {
-//                urlStringSecondPart += mealType.rawValue + ","
                 queryItems.append(URLQueryItem(name: Api.KeysName.mealType.rawValue, value: mealType.rawValue))
             }
-//            urlStringSecondPart.removeLast()
         }
         if let cuisineTypes = cuisineTypes {
-//            urlStringThirdPart = "&cuisine="
             for cuisineType in cuisineTypes {
-//                urlStringThirdPart += cuisineType.rawValue + ","
                 queryItems.append(URLQueryItem(name: Api.KeysName.cuisine.rawValue, value: cuisineType.rawValue))
             }
-//            urlStringThirdPart.removeLast()
         }
-//        let urlStringRecipesByNameAndFilters = (urlStringFirstPart + urlStringSecondPart + urlStringThirdPart).replacingOccurrences(of: " ", with: "%20")
-//        print(urlStringRecipesByNameAndFilters)
-//        print(urlStringRecipesByNameAndFilters.replacingOccurrences(of: " ", with: "%20"))
-       
         guard let url = makeUrl(path: "/recipes/complexSearch", queryItems: queryItems) else { return }
-        NetworkRequest.getDataTask(url: url, completion: completion)
+        networkRequest.requestAndDecode(url: url, completion: completion)
+    }
+}
+
+// MARK: - Core Data
+
+extension DataManager {
+    func saveRecipe(recipe: RecipeDetail) {
+        coreDataManager.saveRecipe(recipe: recipe)
+    }
+    
+    func updateSectionInRecipe(savedRecipe: SavedRecipe, newSection: String) {
+        coreDataManager.updateSectionInRecipe(savedRecipe: savedRecipe, newSection: newSection)
+    }
+    
+    func deleteSavedRecipe(recipe: SavedRecipe) {
+        coreDataManager.deleteSavedRecipe(savedRecipe: recipe)
+    }
+    
+    func fetchSavedRecipes(completionHadler: @escaping ([SavedRecipe]) -> Void) {
+        coreDataManager.fetchSavedRecipes { (savedRecipesEntities) in
+            let savedRecipes = savedRecipesEntities.map({ SavedRecipe(entity: $0)})
+            completionHadler(savedRecipes)
+        }
+    }
+    
+    func saveContext() {
+        coreDataManager.saveContext()
     }
 }

@@ -9,17 +9,18 @@ import Foundation
 
 
 class Box<T> {
-    
-    var listener: ((T) -> Void)?
+    var listeners: [((T) -> Void)] = []
     
     var value: T {
         didSet {
-            listener?(value)
+            for listener in listeners {
+                listener(value)
+            }
         }
     }
     
     func bindListener(listener: @escaping (T) -> ()) {
-        self.listener = listener
+        self.listeners.append(listener)
     }
     
     init(value: T) {

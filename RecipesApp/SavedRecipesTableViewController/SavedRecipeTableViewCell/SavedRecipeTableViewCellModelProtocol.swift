@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+protocol SavedRecipeTableViewCellModelProtocol {
+    var imageData:Data? { get }
+    var title: String { get }
+    var summary: String { get }
+}

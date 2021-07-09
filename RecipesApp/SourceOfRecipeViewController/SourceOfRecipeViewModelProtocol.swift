@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+protocol SourceOfRecipeViewModelProtocol {
+    var urlString: String { get }
+    var urlRequest: URLRequest? { get }
+}

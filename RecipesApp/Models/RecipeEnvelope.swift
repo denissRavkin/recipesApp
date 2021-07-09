@@ -7,12 +7,23 @@
 
 import Foundation
 
-struct Recipe: Codable {
+protocol RecipeEnvelopeForCellViewModel {
+    var title: String { get }
+    var image: String? { get }
+}
+
+struct RandomRecipe: Codable {
     let recipes: [RecipeEnvelope]
 }
 
-struct RecipeEnvelope: Codable {
+struct RecipeByName: Codable {
+    let results: [RecipeEnvelope]
+}
+
+struct RecipeEnvelope: Codable, RecipeEnvelopeForCellViewModel {
     let id: Int
     let title: String
-    let image: String
+    let image: String?
 }
+
+

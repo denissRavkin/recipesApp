@@ -8,48 +8,19 @@
 import UIKit
 
 class SavedRecipeTableViewCell: UITableViewCell {
-
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-        print("awake from nib")
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-    
     weak var tableView: UITableView!
     
     @IBOutlet weak var recipeImageView: UIImageView!
     @IBOutlet weak var recipeNameLabel: UILabel!
     @IBOutlet weak var summaryButton: UIButton!
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        print("init")
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        print("init")
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    
-    
     var viewModel: SavedRecipeTableViewCellModel! {
         didSet {
-//            setupUI()
-//            setStartConstraints()
-            
-           
-        
-            
-            
-            summaryButton.titleLabel?.numberOfLines = 2
+            if viewModel.savedRecipe.isDeployed {
+                summaryButton.titleLabel?.numberOfLines = 0
+            } else {
+                summaryButton.titleLabel?.numberOfLines = 2
+            }
             
             if let imageData = viewModel.imageData {
                 recipeImageView.image = UIImage(data: imageData)
@@ -61,13 +32,29 @@ class SavedRecipeTableViewCell: UITableViewCell {
         }
     }
     
-    
-    @IBAction func summaryButtonTouched() {
-        summaryButton.titleLabel?.numberOfLines = 0
-//        summaryButton.sizeToFit()
-        viewModel.isCellDeployed.toggle()
-        tableView.beginUpdates()
-        tableView.endUpdates()
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        print("awake from nib")
+        NSLayoutConstraint.activate([
+            summaryButton.titleLabel!.topAnchor.constraint(equalTo: summaryButton.topAnchor),
+            summaryButton.titleLabel!.bottomAnchor.constraint(equalTo: summaryButton.bottomAnchor),
+            summaryButton.titleLabel!.trailingAnchor.constraint(equalTo: summaryButton.trailingAnchor),
+            summaryButton.titleLabel!.leadingAnchor.constraint(equalTo: summaryButton.leadingAnchor)
+        ])
     }
-    
+
+    @IBAction func summaryButtonTouched() {
+        
+        tableView.performBatchUpdates {
+            if viewModel.savedRecipe.isDeployed {
+                summaryButton.titleLabel?.numberOfLines = 2
+            } else {
+                summaryButton.titleLabel?.numberOfLines = 0
+            }
+        } completion: { (finished) in
+            if finished {
+                self.viewModel.savedRecipe.isDeployed.toggle()
+            }
+        }
+    }
 }

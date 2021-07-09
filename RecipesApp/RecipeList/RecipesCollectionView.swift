@@ -22,6 +22,7 @@ class RecipesCollectionView: UICollectionView, UIGestureRecognizerDelegate {
         super.init(frame: frame, collectionViewLayout: layout)
         setupActivityIndicator()
         setupActivityIndicatorConstraints()
+        setupGradientLayer()
         setupRecipesCollectionView()
         setupGesture()
     }
@@ -76,7 +77,6 @@ class RecipesCollectionView: UICollectionView, UIGestureRecognizerDelegate {
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
         gradientLayer.endPoint = CGPoint(x: 0, y: 1)
         gradientLayer.colors = [#colorLiteral(red: 0, green: 0.6163546954, blue: 0.01877258797, alpha: 1).cgColor, #colorLiteral(red: 1, green: 0.9426946848, blue: 0.1007128151, alpha: 1).cgColor]
-        gradientLayer.frame = self.frame
     }
     
     @objc func swipeUpGestureOnCollectionView() {

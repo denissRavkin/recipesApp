@@ -8,7 +8,6 @@
 import UIKit
 
 class SearchFilterCollectionViewCell: UICollectionViewCell {
-
     let filterButton: UIButton = UIButton()
     
     override init(frame: CGRect) {

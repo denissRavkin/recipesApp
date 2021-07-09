@@ -8,10 +8,8 @@
 import UIKit
 
 class RecipeEnvelopeCollectionViewCell: UICollectionViewCell {
-    
     var recipeNameLabel: UILabel = UILabel()
     var recipeImageView: UIImageView = UIImageView()
-   //var recipeImageStringUrl: String!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -39,12 +37,14 @@ class RecipeEnvelopeCollectionViewCell: UICollectionViewCell {
                     }
                     return
                 }
-                if let imageData = try? Data(contentsOf: imageUrl), imageStringUrl == viewModel.imageStringUrl {
+                if let imageData = try? Data(contentsOf: imageUrl) {
                     DispatchQueue.main.async {
-                        recipeImageView.image = UIImage(data: imageData)
+                        if imageStringUrl == viewModel.imageStringUrl {
+                            recipeImageView.image = UIImage(data: imageData)
+                        } else {
+                            print("œelse dispatch")
+                        }
                     }
-                } else {
-                    print("œelse dispatch")
                 }
                 
             }

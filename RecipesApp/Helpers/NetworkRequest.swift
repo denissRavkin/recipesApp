@@ -7,10 +7,12 @@
 
 import Foundation
 
-class NetworkRequest {
-    
-    static func getDataTask<T: Decodable>(url: URL, completion: @escaping (T?)-> Void)  {
-        
+protocol Networking {
+    func requestAndDecode<T: Decodable>(url: URL, completion: @escaping (T?)-> Void)
+}
+
+class NetworkRequest: Networking {
+    func requestAndDecode<T: Decodable>(url: URL, completion: @escaping (T?)-> Void)  {
         URLSession.shared.dataTask(with: url) { (data, _ , _) in
             guard let data = data else { return }
             print("data ok")
@@ -23,7 +25,6 @@ class NetworkRequest {
                 print("catch error")
                 print(error)
             }
-            
         }.resume()
     }
 }
